@@ -1,0 +1,59 @@
+# docker-compose.dev.yml
+version: '3.8'
+
+services:
+  client:
+    build:
+      context: ./client
+      dockerfile: Dockerfile.dev 
+    container_name: mern-client-dev
+    ports:
+      - "3000:3000" 
+    environment:
+      VITE_API_BASE_URL: http://server:5000
+    networks:
+      - mern-network
+    depends_on:
+      - server
+    volumes:
+      - ./client:/app
+      - /app/node_modules
+
+  server:
+    build:
+      context: ./server
+      dockerfile: Dockerfile 
+    container_name: mern-server-dev
+    ports:
+      - "5000:5000"
+    environment:
+      NODE_ENV: development
+      PORT: 5000
+    env_file:
+      - .env.docker
+    networks:
+      - mern-network
+    depends_on:
+      - mongodb
+    volumes:
+      - ./server:/app
+      - /app/node_modules
+
+
+
+  mongodb:
+    image: mongo:latest
+    container_name: mern-mongodb-dev
+    # ports:
+    #   - "27017:27017"
+    volumes:
+      - mongo-data:/data/db
+    networks:
+      - mern-network
+
+networks:
+  mern-network:
+    driver: bridge
+
+volumes:
+  mongo-data:

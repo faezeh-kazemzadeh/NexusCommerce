@@ -1,0 +1,10 @@
+    {
+      "watch": ["."],
+      "ext": "js,json",
+      "execMap": {
+        "js": "node --experimental-modules" 
+      },
+      "legacyWatch": true,
+      "verbose": true 
+    }
+    
