@@ -16,10 +16,10 @@ import PageTitleManager from "../components/common/PageTitleManager";
 
 /* -------------------- Lazy Pages -------------------- */
 
-const Home = lazy(() => import("../pages/Home"));
-const About = lazy(() => import("../pages/About"));
-const UnAuthorized = lazy(() => import("../pages/UnAuthorized"));
-const NotFound = lazy(() => import("../pages/NotFound"));
+const Home = lazy(() => import("../../pages/Home"));
+const About = lazy(() => import("../../pages/About"));
+const UnAuthorized = lazy(() => import("../../pages/UnAuthorized"));
+const NotFound = lazy(() => import("../../pages/NotFound"));
 
 const SignIn = lazy(() => import("../../features/auth/pages/SignIn"));
 const SignUp = lazy(() => import("../../features/auth/pages/SignUp"));
