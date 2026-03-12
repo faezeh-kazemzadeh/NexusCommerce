@@ -23,11 +23,11 @@ export const signup = asyncHandler(async (req, res, next) => {
   await user.save();
 
   await generateTokens(res, user);
-  const { password: pass, ...userDetails } = user._doc;
+
   res.status(200).json({
     success: true,
     message: "Registration successful! You are now logged in.",
-    user: userDetails,
+    user: user,
   });
 });
 
@@ -36,33 +36,33 @@ export const signup = asyncHandler(async (req, res, next) => {
 //  @Access         Public
 export const signin = asyncHandler(async (req, res, next) => {
   const { email, password } = req.body;
-  const validUser = await User.findOne({ email }).select("+password");
-  console.log("User Roles from DB:", validUser);
+  const user = await User.findOne({ email }).select("+password");
+  console.log("User Roles from DB:", user);
 
-  if (!validUser) {
+  if (!user) {
     return next(
       errorHandler(401, "Please provide a valid email address and password."),
     );
   }
 
-  if (validUser.isDeleted) {
+  if (user.isDeleted) {
     return next(errorHandler(403, "User has been deleted"));
   }
 
-  if (!validUser.active) {
+  if (!user.active) {
     return next(errorHandler(403, "User account is not active"));
   }
 
-  const isPasswordValid = await bcrypt.compare(password, validUser.password);
+  const isPasswordValid = await bcrypt.compare(password, user.password);
   if (!isPasswordValid) {
     return next(errorHandler(401, "Invalid email or password"));
   }
-  await generateTokens(res, validUser);
-  const { password: pass, ...userDetails } = validUser._doc;
+  await generateTokens(res, user);
+
   res.status(200).json({
     success: true,
     message: "Login successful",
-    user: userDetails,
+    user: user,
   });
 });
 

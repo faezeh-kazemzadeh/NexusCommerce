@@ -56,7 +56,26 @@ const UserSchema = mongoose.Schema(
     resetPasswordToken: { type: String, select: false },
     resetPasswordExpires: { type: Date, select: false },
   },
-  { timestamps: true },
+  {
+    timestamps: true,
+    toJson: {
+      transform: (doc, ret) => {
+        // Whitelist of fields to return
+        return {
+          _id: ret._id,
+          firstname: ret.firstname,
+          lastname: ret.lastname,
+          email: ret.email,
+          phone: ret.phone,
+          roles: ret.roles,
+          active: ret.active,
+          isDeleted: ret.isDeleted,
+          createdAt: ret.createdAt,
+          updatedAt: ret.updatedAt,
+        };
+      },
+    },
+  },
 );
 
 UserSchema.statics.validateUser = (user) => {
