@@ -1,4 +1,5 @@
 import express from "express";
+import { User } from "../models/user.model.js";
 import {
   signup,
   signin,
@@ -14,10 +15,10 @@ import {
   verifyRefreshToken,
   verifyToken,
 } from "../middleware/auth.middleware.js";
-
+import { validate } from "../middleware/validate.js";
 const router = express.Router();
 
-router.post("/signup", signup);
+router.post("/signup", validate(User.validateUser), signup);
 router.post("/signin", signin);
 router.post("/signout", signout);
 router.post("/refresh-token", verifyRefreshToken, refreshToken);
@@ -27,6 +28,6 @@ router.get("/validate-token/:token", validateToken);
 router
   .route("/profile")
   .get(verifyToken, getUserProfile)
-  .put(verifyToken, updateUserProfile);
+  .put(verifyToken, validate(User.validateUserProfile), updateUserProfile);
 
 export default router;

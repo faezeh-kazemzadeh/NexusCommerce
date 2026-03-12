@@ -58,7 +58,7 @@ const UserSchema = mongoose.Schema(
   },
   {
     timestamps: true,
-    toJson: {
+    toJSON: {
       transform: (doc, ret) => {
         // Whitelist of fields to return
         return {
@@ -71,7 +71,6 @@ const UserSchema = mongoose.Schema(
           active: ret.active,
           isDeleted: ret.isDeleted,
           createdAt: ret.createdAt,
-          updatedAt: ret.updatedAt,
         };
       },
     },
@@ -136,6 +135,15 @@ UserSchema.statics.validateUserProfile = (user) => {
     phone: Joi.string(),
   });
   return schema.validate(user, { abortEarly: false });
+};
+
+UserSchema.statics.validateStatusAction = (data) => {
+  const schema = Joi.object({
+    action: Joi.string()
+      .valid("delete", "restore", "activate", "deactivate")
+      .required(),
+  });
+  return schema.validate(data);
 };
 
 UserSchema.pre("save", async function (next) {

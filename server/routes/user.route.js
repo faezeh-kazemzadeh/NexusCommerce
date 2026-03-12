@@ -6,12 +6,17 @@ import {
   updateUserStatusController,
   updateUser,
 } from "../controllers/user.controller.js";
-
+import { User } from "../models/user.model.js";
+import { validate } from "../middleware/validate.js";
 const router = express.Router();
 router.use(verifyToken, authorize(["admin"]));
 
 router.get("/", getUsersList);
-router.patch("/:id", updateUser);
-router.patch("/:id/status", updateUserStatusController);
+router.patch("/:id", validate(User.validateUserUpdate), updateUser);
+router.patch(
+  "/:id/status",
+  validate(User.validateStatusAction),
+  updateUserStatusController,
+);
 
 export default router;

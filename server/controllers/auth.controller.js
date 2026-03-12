@@ -12,8 +12,6 @@ import { RefreshToken } from "../models/refreshToken.model.js";
 //  @Route          POST /api/users/signup
 //  @Access         Public
 export const signup = asyncHandler(async (req, res, next) => {
-  const { error } = User.validateUser(req.body);
-  if (error) return next(errorHandler(400, error.details[0].message));
   let user = await User.findOne({ email: req.body.email });
   if (user) return next(errorHandler(400, "User exist"));
 
@@ -223,7 +221,7 @@ export const resetPassword = asyncHandler(async (req, res, next) => {
   user.resetPasswordExpires = undefined;
 
   await user.save();
-  res.status(200).json({ success: true });
+  res.status(200).json({ success: true, message: "Password reset successful" });
 });
 
 //  @Destination    Get User Pofile
@@ -239,8 +237,6 @@ export const getUserProfile = asyncHandler(async (req, res, next) => {
 //  @Route          PUT /api/users/profile
 //  @Access         Private
 export const updateUserProfile = asyncHandler(async (req, res, next) => {
-  const { error } = User.validateUserProfile(req.body);
-  if (error) return next(errorHandler(400, error.details[0].message));
   const allowedFields = ["firstname", "lastname", "phone"];
   const updateFields = _.pick(req.body, allowedFields);
 
@@ -254,7 +250,7 @@ export const updateUserProfile = asyncHandler(async (req, res, next) => {
 
   res.status(200).json({
     success: true,
-    message: "Profile Update successful",
+    message: "Profile updated successfully",
     user: updatedUser,
   });
 });
