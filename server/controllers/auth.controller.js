@@ -8,9 +8,7 @@ import { errorHandler } from "../utils/error.js";
 import { generateTokens } from "../utils/token.js";
 import { sendEmail } from "../utils/sendEmail.js";
 import { RefreshToken } from "../models/refreshToken.model.js";
-//  @Destination    Register User
-//  @Route          POST /api/users/signup
-//  @Access         Public
+
 export const signup = asyncHandler(async (req, res, next) => {
   let user = await User.findOne({ email: req.body.email });
   if (user) return next(errorHandler(400, "User exist"));
@@ -29,9 +27,6 @@ export const signup = asyncHandler(async (req, res, next) => {
   });
 });
 
-//  @Destination    Authenticate User
-//  @Route          POST /api/users/signin
-//  @Access         Public
 export const signin = asyncHandler(async (req, res, next) => {
   const { email, password } = req.body;
   const user = await User.findOne({ email }).select("+password");
@@ -64,9 +59,6 @@ export const signin = asyncHandler(async (req, res, next) => {
   });
 });
 
-//  @Destination    Logout User
-//  @Route          POST /api/users/signout
-//  @Access         Public
 export const signout = asyncHandler(async (req, res) => {
   const refreshToken = req.cookies.refresh_token;
   if (refreshToken) {
@@ -87,9 +79,6 @@ export const signout = asyncHandler(async (req, res) => {
   res.status(200).json({ success: true, message: "Logged out" });
 });
 
-//  @Destination    refreshToken
-//  @Route          POST /api/auth/refreshtoken
-//  @Access         Public
 export const refreshToken = asyncHandler(async (req, res, next) => {
   const oldToken = req.cookies.refresh_token;
   if (!oldToken) return next(errorHandler(401, "No Refresh Token"));
@@ -111,9 +100,7 @@ export const refreshToken = asyncHandler(async (req, res, next) => {
 
   res.status(200).json({ success: true, accessToken });
 });
-//  @Destination    Forgot Password
-//  @Route          POST /api/auth/forgot-password
-//  @Access         Public
+
 export const forgotPassword = asyncHandler(async (req, res, next) => {
   if (!req.body.email) {
     return next(errorHandler(400, "Email address is required."));
@@ -177,9 +164,6 @@ export const forgotPassword = asyncHandler(async (req, res, next) => {
   }
 });
 
-//  @Destination     Validate Token
-//  @Route           POST /api/auth/validate-token/:token
-//  @Access          Public
 export const validateToken = asyncHandler(async (req, res, next) => {
   const { token } = req.params;
 
@@ -201,9 +185,6 @@ export const validateToken = asyncHandler(async (req, res, next) => {
   res.status(200).json({ success: true, message: "Token is valid" });
 });
 
-//  @Destination     Reset Password
-//  @Route           PUT /api/auth/reset-password
-//  @Access          Public
 export const resetPassword = asyncHandler(async (req, res, next) => {
   const resetPasswordToken = crypto
     .createHash("sha256")
@@ -224,18 +205,12 @@ export const resetPassword = asyncHandler(async (req, res, next) => {
   res.status(200).json({ success: true, message: "Password reset successful" });
 });
 
-//  @Destination    Get User Pofile
-//  @Route          GET /api/users/profile
-//  @Access         Public
 export const getUserProfile = asyncHandler(async (req, res, next) => {
   const user = await User.findById(req.user._id).select("-password");
   if (!user) return next(errorHandler(404, "User not found"));
   res.status(200).json(user);
 });
 
-//  @Destination    Update User Profile
-//  @Route          PUT /api/users/profile
-//  @Access         Private
 export const updateUserProfile = asyncHandler(async (req, res, next) => {
   const allowedFields = ["firstname", "lastname", "phone"];
   const updateFields = _.pick(req.body, allowedFields);
