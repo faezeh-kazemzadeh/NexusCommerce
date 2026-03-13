@@ -4,7 +4,7 @@ import { validate } from "../middleware/validate.js";
 import { verifyToken, authorize } from "../middleware/auth.middleware.js";
 import {
   getTags,
-  addTag,
+  createTag,
   updateTag,
   deleteTag,
 } from "../controllers/tag.controller.js";
@@ -25,7 +25,7 @@ router.use(verifyToken, authorize(["admin"]));
  * @route   POST /api/tags
  * @desc    Create a new tag
  */
-router.post("/", validate(Tag.validateTag), addTag);
+router.post("/", validate(Tag.validateTag), createTag);
 
 /**
  * @route   PUT/DELETE /api/tags/:id

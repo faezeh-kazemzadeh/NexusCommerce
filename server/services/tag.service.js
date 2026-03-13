@@ -1,8 +1,38 @@
 import { Tag } from "../models/tag.model.js";
 import { errorHandler } from "../utils/error.js";
 
-export const getAllTagsService = async () => {
-  return await Tag.find({}).sort({ createdAt: -1 }).lean();
+export const getTagsService = async ({
+  search = "",
+  page = 1,
+  limit = 10,
+  sort = "createdAt",
+} = {}) => {
+  const pageNumber = Math.max(Number(page) || 1, 1);
+  const limitNumber = Math.max(Number(limit) || 10, 1);
+
+  let query = {};
+  if (search) {
+    query.$or = [
+      { name: { $regex: search, $options: "i" } },
+      { description: { $regex: search, $options: "i" } },
+    ];
+  }
+
+  const totalTags = await Tag.countDocuments(query);
+  const tags = await Tag.find(query)
+    .sort({ [sort]: -1 })
+    .skip((pageNumber - 1) * limitNumber)
+    .limit(limitNumber)
+    .lean();
+
+  return {
+    tags,
+    pagination: {
+      totalItems: totalTags,
+      totalPages: Math.ceil(totalTags / limitNumber),
+      currentPage: pageNumber,
+    },
+  };
 };
 
 export const createTagService = async (tagData) => {
