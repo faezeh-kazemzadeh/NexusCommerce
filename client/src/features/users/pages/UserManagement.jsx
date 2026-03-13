@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { useUsers } from "../hooks/useUsers";
 import EditUserModal from "../components/EditUserModal";
-import { getPagination } from "../../../core/utils/paginationUtils";
+import Pagination from "../../../core/components/common/Pagination";
 const UserManagement = () => {
   const {
     users,
@@ -24,7 +24,6 @@ const UserManagement = () => {
   const [editSuccess, setEditSuccess] = useState("");
   const [editError, setEditError] = useState("");
 
-  const pagination = getPagination(page, pages);
   return (
     <div className="p-8 bg-gray-50 min-h-screen font-sans" dir="ltr">
       <div className="max-w-6xl mx-auto">
@@ -160,65 +159,13 @@ const UserManagement = () => {
         </div>
 
         {/* Pagination Section */}
-        {/* {pages > 1 && (
-          <div className="flex justify-center items-center gap-3 mt-10">
-            {Array.from({ length: pages }, (_, i) => {
-              const pageNum = i + 1;
-              return (
-                <button
-                  key={pageNum}
-                  onClick={() => handlePageChange(pageNum)}
-                  className={`w-10 h-10 rounded-xl font-bold transition-all duration-300 ${
-                    page === pageNum
-                      ? "bg-blue-600 text-white shadow-lg shadow-blue-200 scale-110"
-                      : "bg-white text-gray-400 hover:bg-gray-50 border border-gray-100"
-                  }`}
-                >
-                  {pageNum}
-                </button>
-              );
-            })}
-          </div>
-        )} */}
+
         {pages > 1 && (
-          <div className="flex justify-center items-center gap-2 mt-10">
-            <button
-              disabled={page === 1}
-              onClick={() => handlePageChange(page - 1)}
-              className="px-3 py-2 rounded-lg border disabled:opacity-40"
-            >
-              Prev
-            </button>
-
-            {pagination.map((p, i) =>
-              p === "..." ? (
-                <span key={`dots-${i}`} className="px-2 text-gray-400">
-                  ...
-                </span>
-              ) : (
-                <button
-                  key={`page-${p}-${i}`}
-                  onClick={() => handlePageChange(p)}
-                  className={`w-10 h-10 rounded-xl font-bold transition-all
-      ${
-        page === p
-          ? "bg-blue-600 text-white shadow-lg shadow-blue-200"
-          : "bg-white text-gray-400 hover:bg-gray-50 border border-gray-100"
-      }`}
-                >
-                  {p}
-                </button>
-              ),
-            )}
-
-            <button
-              disabled={page === pages}
-              onClick={() => handlePageChange(page + 1)}
-              className="px-3 py-2 rounded-lg border disabled:opacity-40"
-            >
-              Next
-            </button>
-          </div>
+          <Pagination
+            page={page}
+            totalPages={pages}
+            onPageChange={handlePageChange}
+          />
         )}
       </div>
 
