@@ -1,24 +1,36 @@
-// client/src/App.jsx
-import { useState, useEffect } from 'react';
-import reactLogo from './assets/react.svg';
-import viteLogo from '/vite.svg';
-import './App.css';
+import { useEffect } from "react";
 
-import { setBaseURL } from './core/services/apiClient';
-import { Axios } from 'axios';
+import "./App.css";
 
-import AppRouter from './core/router/AppRouter';
+import { setBaseURL } from "./core/services/apiClient";
+
+import AppRouter from "./core/router/AppRouter";
+
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
+
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      retry: 1, // Retry failed requests once
+      refetchOnReconnect: true, // Refetch when the browser regains network connection
+      refetchOnWindowFocus: false, // Prevents auto-refetching when you switch tabs
+    },
+  },
+});
+
 function App() {
   useEffect(() => {
-       const API_BASE_URL = '/api'; 
+    const API_BASE_URL = "/api";
     setBaseURL(API_BASE_URL);
     console.log(`Axios Base URL set to: ${API_BASE_URL}`);
   }, []);
   return (
-    <>
-    <AppRouter />
-      
-    </>
+    <QueryClientProvider client={queryClient}>
+      <AppRouter />
+
+      <ReactQueryDevtools initialIsOpen={false} />
+    </QueryClientProvider>
   );
 }
 
