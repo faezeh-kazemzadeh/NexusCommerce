@@ -7,7 +7,12 @@ const api = axios.create({
     "Content-Type": "application/json",
   },
 });
-const noRetryUrls = ["/auth/signin", "/auth/signup", "/auth/signout"];
+const noRetryUrls = [
+  "/auth/signin",
+  "/auth/signup",
+  "/auth/signout",
+  "/auth/refresh-token",
+];
 api.interceptors.request.use(
   (config) => {
     if (config.data instanceof FormData) {
@@ -33,7 +38,11 @@ api.interceptors.response.use(
     ) {
       originalRequest._retry = true;
       try {
-        const res = await api.post("/auth/refresh-token");
+        const res = await api.post(
+          "/auth/refresh-token",
+          {},
+          { withCredentials: true },
+        );
         if (!res?.data) return;
         return api(originalRequest);
       } catch (error) {
