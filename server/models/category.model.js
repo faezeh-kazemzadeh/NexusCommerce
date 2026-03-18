@@ -56,7 +56,7 @@ CategorySchema.statics.validateCategory = (category) => {
   const schema = Joi.object({
     name: Joi.string().min(2).max(50).trim().required(),
     description: Joi.string().max(200).allow("", null),
-    parentCategory: Joi.string().hex().length(24).allow(null, ""),
+    parent: Joi.string().hex().length(24).allow(null, ""),
   });
   return schema.validate(category, { abortEarly: false });
 };

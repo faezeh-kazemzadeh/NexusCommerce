@@ -19,13 +19,13 @@ export const getCategories = asyncHandler(async (req, res) => {
 });
 
 export const createCategory = asyncHandler(async (req, res) => {
-  const data = _.pick(req.body, ["name", "description", "parentCategory"]);
+  const data = _.pick(req.body, ["name", "description", "parent"]);
   const category = await categoryService.createCategoryService(data);
   res.status(201).json({ success: true, category });
 });
 
 export const updateCategory = asyncHandler(async (req, res) => {
-  const data = _.pick(req.body, ["name", "description", "parentCategory"]);
+  const data = _.pick(req.body, ["name", "description", "parent"]);
   const category = await categoryService.updateCategoryService(
     req.params.id,
     data,

@@ -47,14 +47,33 @@ export const updateCategoryService = async (id, updateData) => {
   const category = await Category.findById(id);
   if (!category) throw errorHandler(404, "Category not found");
 
+  // self parent
   if (updateData.parent && updateData.parent === id) {
     throw errorHandler(400, "A category cannot be its own parent");
   }
 
+  // loop check
+  if (
+    Object.prototype.hasOwnProperty.call(updateData, "parent") &&
+    updateData.parent
+  ) {
+    const hasLoop = await isCircular(id, updateData.parent);
+
+    if (hasLoop) {
+      throw errorHandler(400, "Circular parent relationship is not allowed");
+    }
+  }
+
+  // update fields
   if (updateData.name) category.name = updateData.name;
-  if (updateData.description !== undefined)
+
+  if (updateData.description !== undefined) {
     category.description = updateData.description;
-  if (updateData.parent !== undefined) category.parent = updateData.parent;
+  }
+
+  if (Object.prototype.hasOwnProperty.call(updateData, "parent")) {
+    category.parent = updateData.parent === "" ? null : updateData.parent;
+  }
 
   return await category.save();
 };
@@ -73,4 +92,23 @@ export const deleteCategoryService = async (id) => {
   }
 
   return await Category.findByIdAndDelete(id);
+};
+
+const isCircular = async (categoryId, parentId) => {
+  let currentParent = parentId;
+
+  while (currentParent) {
+    if (categoryId && currentParent.toString() === categoryId.toString()) {
+      return true;
+    }
+
+    const parentCategory =
+      await Category.findById(currentParent).select("parent");
+
+    if (!parentCategory) break;
+
+    currentParent = parentCategory.parent;
+  }
+
+  return false;
 };
