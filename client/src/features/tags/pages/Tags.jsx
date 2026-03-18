@@ -4,7 +4,7 @@ import { getTags, deleteTag } from "../services/tag.service";
 import TagsForm from "../components/TagsForm";
 import { FaEdit, FaTrash } from "react-icons/fa";
 import Pagination from "../../../core/components/common/Pagination";
-import { useDebounce } from "../../users/hooks/useDebounce";
+import { useDebounce } from "../../../core/hooks/useDebounce";
 const Tags = () => {
   const [page, setPage] = useState(1);
   const [searchTerm, setSearchTerm] = useState("");
