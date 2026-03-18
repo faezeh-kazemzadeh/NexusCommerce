@@ -32,6 +32,7 @@ export const links = [
         // ],
       },
       { name: "Tags", url: "/dashboard/tags", icon: <HiTag /> },
+      { name: "Categories", url: "/dashboard/categories", icon: <HiTag /> },
     ],
   },
   {

@@ -38,6 +38,9 @@ const UserManagement = lazy(
 );
 
 const Tags = lazy(() => import("../../features/tags/pages/Tags"));
+const Categories = lazy(
+  () => import("../../features/categories/pages/Categories"),
+);
 /* -------------------- Router -------------------- */
 
 function AppRouter() {
@@ -89,6 +92,7 @@ function AppRouter() {
                       <Route path=":id" element={<div>User Detail</div>} />
                     </Route>
                     <Route path="tags" element={<Tags />} />
+                    <Route path="categories" element={<Categories />} />
                   </Route>
 
                   {/* ---------- User Routes ---------- */}
