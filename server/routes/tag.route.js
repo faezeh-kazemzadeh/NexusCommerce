@@ -28,12 +28,12 @@ router.use(verifyToken, authorize(["admin"]));
 router.post("/", validate(Tag.validateTag), createTag);
 
 /**
- * @route   PUT/DELETE /api/tags/:id
+ * @route   PATCH/DELETE /api/tags/:id
  * @desc    Update or Delete a tag
  */
 router
   .route("/:id")
-  .put(validate(Tag.validateTag), updateTag)
+  .patch(validate(Tag.validateTag), updateTag)
   .delete(deleteTag);
 
 export default router;

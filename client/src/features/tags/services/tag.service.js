@@ -17,6 +17,6 @@ export const createTag = (tagData) =>
   apiWrapper(() => api.post("/tags", tagData));
 
 export const updateTag = ({ id, tagData }) =>
-  apiWrapper(() => api.put(`/tags/${id}`, { ...tagData }));
+  apiWrapper(() => api.patch(`/tags/${id}`, { ...tagData }));
 
 export const deleteTag = (id) => apiWrapper(() => api.delete(`/tags/${id}`));
