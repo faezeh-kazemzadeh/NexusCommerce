@@ -76,29 +76,34 @@ export const signout = asyncHandler(async (req, res) => {
 
   res.clearCookie("access_token", cookieOptions);
   res.clearCookie("refresh_token", cookieOptions);
-  res.status(200).json({ success: true, message: "Logged out" });
+  res.status(200).json({ success: true, message: "Logged out successfully." });
 });
 
 export const refreshToken = asyncHandler(async (req, res, next) => {
+  // check if refresh token exists in cookies
   const oldToken = req.cookies.refresh_token;
   if (!oldToken) return next(errorHandler(401, "No Refresh Token"));
 
+  // check if the token is in the database (valid and not revoked)
   const hashedOld = crypto.createHash("sha256").update(oldToken).digest("hex");
   const tokenInDB = await RefreshToken.findOne({ token: hashedOld });
 
-  if (!tokenInDB) return next(errorHandler(403, "Invalid Refresh Token"));
+  if (!tokenInDB) {
+    return next(
+      errorHandler(401, "Your login has expired, please sign in again."),
+    );
+  }
 
-  const user = await User.findById(tokenInDB.user);
-  if (!user || !user.active || user.isDeleted)
-    return next(errorHandler(403, "User unavailable"));
+  // find user associated with the token
+  const user = await User.findById(req.user._id);
+  if (!user || !user.active || user.isDeleted) {
+    return next(errorHandler(401, "User unavailable"));
+  }
 
-  // حذف توکن قبلی (Rotation)
-  await RefreshToken.deleteOne({ _id: tokenInDB._id });
+  // generate new tokens and save the new refresh token in the database (rotation)
+  await generateTokens(res, user, oldToken);
 
-  // تولید توکن جدید و ذخیره در DB
-  const { accessToken } = await generateTokens(res, user);
-
-  res.status(200).json({ success: true, accessToken });
+  res.status(200).json({ success: true });
 });
 
 export const forgotPassword = asyncHandler(async (req, res, next) => {
