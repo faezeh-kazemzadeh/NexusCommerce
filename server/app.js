@@ -9,6 +9,7 @@ import authRouter from "./routes/auth.route.js";
 import userRouter from "./routes/user.route.js";
 import tagRouter from "./routes/tag.route.js";
 import categoryRouter from "./routes/category.route.js";
+import mediaRouter from "./routes/media.route.js";
 
 dotenv.config();
 
@@ -34,6 +35,7 @@ app.use("/api/auth", authRouter);
 app.use("/api/users", userRouter);
 app.use("/api/tags", tagRouter);
 app.use("/api/categories", categoryRouter);
+app.use("/api/media", mediaRouter);
 
 app.get("/", (req, res) => {
   res.json({ message: "   API is running from Docker!" });
