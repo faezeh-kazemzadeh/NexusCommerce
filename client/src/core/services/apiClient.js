@@ -1,5 +1,6 @@
 import axios from "axios";
-
+import { store } from "../../store";
+import { signOut } from "../../features/auth/redux/authSlice";
 const api = axios.create({
   baseURL: "http://localhost:5000/api",
   withCredentials: true,
@@ -46,6 +47,7 @@ api.interceptors.response.use(
         if (!res?.data) return;
         return api(originalRequest);
       } catch (error) {
+        store.dispatch(signOut());
         return Promise.reject(error);
       }
     }
