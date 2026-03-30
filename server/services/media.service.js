@@ -34,6 +34,7 @@ const deletePhysicalFile = async (fileInfo) => {
   if (!fileInfo?.path) return;
 
   try {
+    await fs.access(fileInfo.path);
     await fs.unlink(fileInfo.path);
   } catch (err) {
     if (err.code !== "ENOENT") {
@@ -73,6 +74,33 @@ const getAllMediaFilesService = async (filters = {}, page = 1, limit = 10) => {
     },
   };
 };
+
+export const saveContentMediaToDb = async (filesObject, userId, session) => {
+  const resultIds = {};
+
+  for (const [fieldName, files] of Object.entries(filesObject)) {
+    const mediaDocs = files.map((file) => ({
+      filename: file.filename,
+      originalName: file.originalname,
+      path: file.path,
+      mimeType: file.mimetype,
+      size: file.size,
+      type: getMediaType(file.mimetype),
+      uploadedBy: userId,
+    }));
+
+    const saved = await Media.insertMany(mediaDocs, { session });
+
+    const isArrayField = ["media"].includes(fieldName);
+
+    resultIds[fieldName] = isArrayField
+      ? saved.map((s) => s._id)
+      : saved[0]._id;
+  }
+
+  return resultIds;
+};
+
 export {
   saveMediaInfoToDatabase,
   deletePhysicalFile,

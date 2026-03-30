@@ -1,6 +1,6 @@
 import multer from "multer";
 import path from "path";
-import fs from "fs/promises"; // ایمپورت در ابتدا برای پرفورمنس بهتر
+import fs from "fs/promises";
 import { errorHandler } from "../utils/error.js";
 
 const allowedMimeTypes = {
@@ -132,3 +132,10 @@ export const uploadSingle = createUploadMiddleware(
 export const uploadArray = createUploadMiddleware(
   multerInstance.array("files", 10),
 );
+
+export {
+  multerInstance,
+  allowedMimeTypes,
+  fileSizeLimits,
+  createUploadMiddleware,
+};

@@ -41,7 +41,7 @@ const UserSchema = mongoose.Schema(
     },
     roles: {
       type: [String],
-      enum: ["admin", "user", "editor"],
+      enum: ["admin", "user", "moderator", "author"],
       default: ["user"],
       index: true,
     },
@@ -83,7 +83,9 @@ UserSchema.statics.validateUser = (user) => {
     lastname: Joi.string().min(3).max(150),
     phone: Joi.string().allow("", null),
     email: Joi.string().min(12).max(250).required().email(),
-    roles: Joi.array().items(Joi.string().valid("admin", "user", "editor")),
+    roles: Joi.array().items(
+      Joi.string().valid("admin", "user", "moderator", "author"),
+    ),
     password: joiPassword
       .string()
       .minOfSpecialCharacters(1)
@@ -121,7 +123,9 @@ UserSchema.statics.validateUserUpdate = (user) => {
     lastname: Joi.string().min(3).max(150),
     email: Joi.string().email(),
     phone: Joi.string().allow("", null),
-    roles: Joi.array().items(Joi.string().valid("admin", "user", "editor")),
+    roles: Joi.array().items(
+      Joi.string().valid("admin", "user", "moderator", "author"),
+    ),
     active: Joi.boolean(),
   }).min(1);
 
