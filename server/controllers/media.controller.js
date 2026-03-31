@@ -76,17 +76,6 @@ export const deleteMedia = asyncHandler(async (req, res, next) => {
       return next(errorHandler(404, "Media not found."));
     }
 
-    const isOwner = mediaDoc.uploadedBy.toString() === req.user._id.toString();
-
-    const isAdmin = req.user.roles && req.user.roles.includes("admin");
-
-    if (!isOwner && !isAdmin) {
-      await session.abortTransaction();
-      return next(
-        errorHandler(403, "You can only delete your own media files."),
-      );
-    }
-
     await deleteMediaDocumentAndPhysicalFile(mediaDoc, session);
 
     await session.commitTransaction();
@@ -119,7 +108,6 @@ export const deleteMultipleMedia = asyncHandler(async (req, res, next) => {
   try {
     const isAdmin = req.user.roles && req.user.roles.includes("admin");
 
-    // ۲. فیلتر هوشمند: ادمین همه را ببیند، کاربر معمولی فقط مال خودش را
     const query = isAdmin
       ? { _id: { $in: ids } }
       : { _id: { $in: ids }, uploadedBy: req.user._id };

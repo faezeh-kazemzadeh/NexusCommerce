@@ -8,7 +8,8 @@ import {
   deleteMultipleMedia,
   getMediaList,
 } from "../controllers/media.controller.js";
-
+import { canAccessResource } from "../middleware/canAccessResource.middleware.js";
+import { Media } from "../models/media.model.js";
 const router = express.Router();
 
 // All media upload routes require authentication
@@ -47,6 +48,14 @@ router.delete("/delete-multiple", deleteMultipleMedia);
  * @desc    Delete a media file by ID
  * @access  Private
  */
-router.delete("/:id", deleteMedia);
+router.delete(
+  "/:id",
+  canAccessResource({
+    Model: Media,
+    ownerField: "uploadedBy",
+    allowedRoles: ["admin"],
+  }),
+  deleteMedia,
+);
 
 export default router;
