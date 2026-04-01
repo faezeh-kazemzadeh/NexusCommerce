@@ -1,9 +1,20 @@
 import express from "express";
-import { createContent } from "../controllers/content.controller.js";
+import {
+  createContent,
+  getContents,
+} from "../controllers/content.controller.js";
 import { contentUpload } from "../middleware/contentUpload.middleware.js";
 import { verifyToken, authorize } from "../middleware/auth.middleware.js";
+import { canAccessResource } from "../middleware/canAccessResource.middleware.js";
 
 const router = express.Router();
+
+/**
+ * @route   GET /api/content
+ * @desc    Get all contents
+ * @access  Public
+ */
+router.get("/", getContents);
 
 // All content creation routes require authentication
 router.use(verifyToken);

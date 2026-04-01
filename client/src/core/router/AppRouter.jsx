@@ -41,6 +41,10 @@ const Tags = lazy(() => import("../../features/tags/pages/Tags"));
 const Categories = lazy(
   () => import("../../features/categories/pages/Categories"),
 );
+
+const ContentManagement = lazy(
+  () => import("../../features/contents/pages/ContentManagement"),
+);
 /* -------------------- Router -------------------- */
 
 function AppRouter() {
@@ -80,6 +84,7 @@ function AppRouter() {
               <Route path="dashboard" element={<DashboardLayout />}>
                 <Route element={<Dashboard />}>
                   <Route index element={null} />
+                  <Route path="contents" element={<ContentManagement />} />
 
                   <Route path="profile" element={<MyProfile />} />
                   {/* ---------- Admin Routes ---------- */}

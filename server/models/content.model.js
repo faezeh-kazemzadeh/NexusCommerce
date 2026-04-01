@@ -11,6 +11,7 @@ const contentSchema = new mongoose.Schema(
       type: String,
       required: [true, "Title is required"],
       trim: true,
+      index: true,
       maxlength: [100, "Title cannot exceed 100 characters"],
     },
 
@@ -36,11 +37,18 @@ const contentSchema = new mongoose.Schema(
 
     status: {
       type: String,
-      enum: ["draft", "published", "archived"],
+      enum: ["draft", "published", "archived", "deleted"],
       default: "draft",
       index: true,
     },
-
+    isDeleted: {
+      type: Boolean,
+      default: false,
+    },
+    deletedAt: {
+      type: Date,
+      default: null,
+    },
     category: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Category",
@@ -147,7 +155,7 @@ const baseSchema = Joi.object({
   category: Joi.objectId().required(),
 
   tags: Joi.array().items(Joi.objectId()),
-  status: Joi.string().valid("draft", "published", "archived"),
+  status: Joi.string().valid("draft", "published", "archived", "deleted"),
 
   type: Joi.string()
     .valid("article", "video", "podcast", "gallery", "review", "news")
@@ -239,6 +247,11 @@ const validateContent = (data) => {
     convert: true,
   });
 };
+
+contentSchema.pre(/^find/, function (next) {
+  this.find({ isDeleted: { $ne: true } });
+  next();
+});
 const Content = mongoose.model("Content", contentSchema);
 
 export { Content, validateContent };

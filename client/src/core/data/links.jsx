@@ -5,7 +5,7 @@ import {
   HiUserRemove,
   HiUserCircle,
   HiCog,
-  HiChartPie,
+  HiCollection,
 } from "react-icons/hi";
 
 export const links = [
@@ -33,6 +33,7 @@ export const links = [
       },
       { name: "Tags", url: "/dashboard/tags", icon: <HiTag /> },
       { name: "Categories", url: "/dashboard/categories", icon: <HiTag /> },
+      { name: "Contents", url: "/dashboard/contents", icon: <HiCollection /> },
     ],
   },
   {
