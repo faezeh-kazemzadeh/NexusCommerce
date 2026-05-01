@@ -1,11 +1,11 @@
 import {
   HiUsers,
   HiUserGroup,
-  HiTrash,
+  HiTag,
   HiUserRemove,
   HiUserCircle,
   HiCog,
-  HiChartPie,
+  HiCollection,
 } from "react-icons/hi";
 
 export const links = [
@@ -16,28 +16,31 @@ export const links = [
       {
         name: "Users Management",
         url: "/dashboard/users",
-        icon: <HiUsers />,
-        subLinks: [
-          { name: "All Users", url: "/dashboard/users", icon: <HiUserGroup /> },
-          {
-            name: "Deleted Users",
-            url: "/dashboard/users/deleted",
-            icon: <HiTrash />,
-          },
-          {
-            name: "Inactive Users",
-            url: "/dashboard/users/inactive",
-            icon: <HiUserRemove />,
-          },
-        ],
+        icon: <HiUserGroup />,
+        // subLinks: [
+        //   { name: "All Users", url: "/dashboard/users", icon: <HiUserGroup /> },
+        //   {
+        //     name: "Deleted Users",
+        //     url: "/dashboard/users/deleted",
+        //     icon: <HiTrash />,
+        //   },
+        //   {
+        //     name: "Inactive Users",
+        //     url: "/dashboard/users/inactive",
+        //     icon: <HiUserRemove />,
+        //   },
+        // ],
       },
+      { name: "Tags", url: "/dashboard/tags", icon: <HiTag /> },
+      { name: "Categories", url: "/dashboard/categories", icon: <HiTag /> },
+      { name: "Contents", url: "/dashboard/contents", icon: <HiCollection /> },
     ],
   },
   {
     title: "User Panel",
     roles: ["admin", "user"],
     links: [
-      { name: "My Profile", url: "/profile", icon: <HiUserCircle /> },
+      { name: "My Profile", url: "/dashboard/profile", icon: <HiUserCircle /> },
       { name: "Settings", url: "/settings", icon: <HiCog /> },
     ],
   },

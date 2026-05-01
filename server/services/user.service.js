@@ -42,7 +42,7 @@ export const getUsersService = async ({
   const skip = (pageNumber - 1) * limitNumber;
 
   const users = await User.find(query)
-    .select("-password -__v")
+    .select("firstname lastname email roles active createdAt")
     .sort({ [sort]: -1 })
     .skip(skip)
     .limit(limitNumber)
@@ -84,7 +84,7 @@ export const updateUserService = async (userId, updates) => {
     { _id: userId, isDeleted: false },
     { $set: filteredUpdates },
     { new: true, runValidators: true },
-  ).select("-password -__v");
+  );
 
   if (!user) {
     throw errorHandler(404, "User not found or deleted.");
@@ -113,12 +113,26 @@ export const updateUserStatusService = async (userId, action) => {
     default:
       throw errorHandler(400, "Invalid status action.");
   }
-
+  if (action === "delete" || action === "deactivate") {
+    const user = await User.findById(userId);
+    if (user && user.roles.includes("admin")) {
+      const adminCount = await User.countDocuments({
+        roles: "admin",
+        active: true,
+        isDeleted: false,
+      });
+      if (adminCount <= 1)
+        throw errorHandler(
+          400,
+          "You cannot remove or deactivate the last admin!",
+        );
+    }
+  }
   const user = await User.findByIdAndUpdate(
     userId,
     { $set: updateData },
     { new: true },
-  ).select("-password -__v");
+  );
 
   if (!user) throw errorHandler(404, "User not found.");
   return user;

@@ -41,7 +41,7 @@ const UserSchema = mongoose.Schema(
     },
     roles: {
       type: [String],
-      enum: ["admin", "user", "editor"],
+      enum: ["admin", "user", "moderator", "author"],
       default: ["user"],
       index: true,
     },
@@ -56,7 +56,25 @@ const UserSchema = mongoose.Schema(
     resetPasswordToken: { type: String, select: false },
     resetPasswordExpires: { type: Date, select: false },
   },
-  { timestamps: true },
+  {
+    timestamps: true,
+    toJSON: {
+      transform: (doc, ret) => {
+        // Whitelist of fields to return
+        return {
+          _id: ret._id,
+          firstname: ret.firstname,
+          lastname: ret.lastname,
+          email: ret.email,
+          phone: ret.phone,
+          roles: ret.roles,
+          active: ret.active,
+          isDeleted: ret.isDeleted,
+          createdAt: ret.createdAt,
+        };
+      },
+    },
+  },
 );
 
 UserSchema.statics.validateUser = (user) => {
@@ -65,7 +83,9 @@ UserSchema.statics.validateUser = (user) => {
     lastname: Joi.string().min(3).max(150),
     phone: Joi.string().allow("", null),
     email: Joi.string().min(12).max(250).required().email(),
-    roles: Joi.array().items(Joi.string().valid("admin", "user", "editor")),
+    roles: Joi.array().items(
+      Joi.string().valid("admin", "user", "moderator", "author"),
+    ),
     password: joiPassword
       .string()
       .minOfSpecialCharacters(1)
@@ -103,7 +123,9 @@ UserSchema.statics.validateUserUpdate = (user) => {
     lastname: Joi.string().min(3).max(150),
     email: Joi.string().email(),
     phone: Joi.string().allow("", null),
-    roles: Joi.array().items(Joi.string().valid("admin", "user", "editor")),
+    roles: Joi.array().items(
+      Joi.string().valid("admin", "user", "moderator", "author"),
+    ),
     active: Joi.boolean(),
   }).min(1);
 
@@ -117,6 +139,15 @@ UserSchema.statics.validateUserProfile = (user) => {
     phone: Joi.string(),
   });
   return schema.validate(user, { abortEarly: false });
+};
+
+UserSchema.statics.validateStatusAction = (data) => {
+  const schema = Joi.object({
+    action: Joi.string()
+      .valid("delete", "restore", "activate", "deactivate")
+      .required(),
+  });
+  return schema.validate(data);
 };
 
 UserSchema.pre("save", async function (next) {

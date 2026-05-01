@@ -123,7 +123,7 @@ function Sidebar({ isCollapsed, isMobileOpen, setIsMobileOpen }) {
           : "opacity-100 w-auto"
       }`}
           >
-            MYAPP<span className="text-blue-600">.</span>
+            NexusCommerce<span className="text-blue-600">.</span>
           </span>
         </Link>
       </div>

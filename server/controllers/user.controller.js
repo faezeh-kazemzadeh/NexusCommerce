@@ -6,9 +6,6 @@ import {
   updateUserService,
 } from "../services/user.service.js";
 
-//  @Destination    Get Users List
-//  @Route          GET /api/users
-//  @Access         requiredRoles: ["Admin"]
 export const getUsersList = asyncHandler(async (req, res) => {
   const {
     status = "active",
@@ -33,9 +30,6 @@ export const getUsersList = asyncHandler(async (req, res) => {
   });
 });
 
-// @Destination    Update User Status (Delete, Restore, Activate, Deactivate)
-// @Route         PATCH /api/users/:id/status
-// @Access         requiredRoles: ["Admin"]
 export const updateUserStatusController = asyncHandler(
   async (req, res, next) => {
     const { id } = req.params;
@@ -58,9 +52,6 @@ export const updateUserStatusController = asyncHandler(
   },
 );
 
-// @Destination    Update User (Name, Email, Role, Active Status)
-// @Route         [PATCH] /api/users/:id
-// @Access         requiredRoles: ["Admin"]
 export const updateUser = asyncHandler(async (req, res) => {
   const { id } = req.params;
 

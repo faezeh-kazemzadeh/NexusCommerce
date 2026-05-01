@@ -1,37 +1,71 @@
-import { Suspense } from "react";
+import { Suspense, lazy } from "react";
 import {
   BrowserRouter as Router,
   Routes,
   Route,
   Navigate,
 } from "react-router-dom";
-import { About, Home, UnAuthorized, NotFound } from "../pages";
+
 import MainLayout from "../components/layout/MainLayout";
 import PublicRoutesLayout from "../components/layout/PublicRoutesLayout";
 import PrivateRoutesLayout from "../components/layout/PrivateRoutesLayout";
 import AllowedRolesWrapper from "../components/common/AllowedRolesWrapper";
-import SignIn from "../../features/auth/pages/SignIn";
-import SignUp from "../../features/auth/pages/SignUp";
-import ForgotPassword from "../../features/auth/pages/ForgotPassword";
-import ResetPassword from "../../features/auth/pages/ResetPassword";
-import MyProfile from "../../features/auth/pages/MyProfile";
-import Dashboard from "../../features/dashboard/Dashboard";
-import AdminLayout from "../components/layout/AdminLayout";
-import UserLayout from "../components/layout/UserLayout";
 import DashboardLayout from "../components/layout/DashboardLayout";
+import UserLayout from "../components/layout/UserLayout";
 import PageTitleManager from "../components/common/PageTitleManager";
-import UserManagement from "../../features/users/pages/UserManagement";
+
+/* -------------------- Lazy Pages -------------------- */
+
+const Home = lazy(() => import("../../pages/Home"));
+const About = lazy(() => import("../../pages/About"));
+const UnAuthorized = lazy(() => import("../../pages/UnAuthorized"));
+const NotFound = lazy(() => import("../../pages/NotFound"));
+
+const SignIn = lazy(() => import("../../features/auth/pages/SignIn"));
+const SignUp = lazy(() => import("../../features/auth/pages/SignUp"));
+const ForgotPassword = lazy(
+  () => import("../../features/auth/pages/ForgotPassword"),
+);
+const ResetPassword = lazy(
+  () => import("../../features/auth/pages/ResetPassword"),
+);
+const MyProfile = lazy(() => import("../../features/auth/pages/MyProfile"));
+
+const Dashboard = lazy(() => import("../../features/dashboard/Dashboard"));
+
+const UserManagement = lazy(
+  () => import("../../features/users/pages/UserManagement"),
+);
+
+const Tags = lazy(() => import("../../features/tags/pages/Tags"));
+const Categories = lazy(
+  () => import("../../features/categories/pages/Categories"),
+);
+
+const ContentManagement = lazy(
+  () => import("../../features/contents/pages/ContentManagement"),
+);
+/* -------------------- Router -------------------- */
 
 function AppRouter() {
   return (
     <Router>
-      <Suspense fallback={<div>Loading...</div>}>
-        <PageTitleManager />
+      <PageTitleManager />
+
+      <Suspense
+        fallback={
+          <div className="flex items-center justify-center min-h-screen text-lg font-semibold">
+            Loading page...
+          </div>
+        }
+      >
         <Routes>
+          {/* ---------------- Public Pages ---------------- */}
+
           <Route path="/" element={<MainLayout />}>
             <Route index element={<Home />} />
-            <Route path="unauthorized" element={<UnAuthorized />} />
             <Route path="about" element={<About />} />
+            <Route path="unauthorized" element={<UnAuthorized />} />
 
             <Route element={<PublicRoutesLayout />}>
               <Route path="signin" element={<SignIn />} />
@@ -41,15 +75,19 @@ function AppRouter() {
             </Route>
           </Route>
 
+          {/* ---------------- Private Routes ---------------- */}
+
           <Route element={<PrivateRoutesLayout />}>
-            {/* Add private routes here */}
             <Route
               element={<AllowedRolesWrapper allowedRoles={["admin", "user"]} />}
             >
               <Route path="dashboard" element={<DashboardLayout />}>
                 <Route element={<Dashboard />}>
                   <Route index element={null} />
+                  <Route path="contents" element={<ContentManagement />} />
+
                   <Route path="profile" element={<MyProfile />} />
+                  {/* ---------- Admin Routes ---------- */}
 
                   <Route
                     element={<AllowedRolesWrapper allowedRoles={["admin"]} />}
@@ -58,12 +96,16 @@ function AppRouter() {
                       <Route index element={<UserManagement />} />
                       <Route path=":id" element={<div>User Detail</div>} />
                     </Route>
+                    <Route path="tags" element={<Tags />} />
+                    <Route path="categories" element={<Categories />} />
                   </Route>
+
+                  {/* ---------- User Routes ---------- */}
+
                   <Route
                     element={<AllowedRolesWrapper allowedRoles={["user"]} />}
                   >
                     <Route element={<UserLayout />}>
-                      {/* Add user-specific routes here */}
                       <Route path="orders">
                         <Route
                           path="my-orders"
@@ -80,9 +122,11 @@ function AppRouter() {
               </Route>
             </Route>
           </Route>
-          {/* Add other routes here */}
-          <Route path="*" element={<NotFound />} />
+
+          {/* ---------------- Misc ---------------- */}
+
           <Route path="redirect" element={<Navigate to="/" replace />} />
+          <Route path="*" element={<NotFound />} />
         </Routes>
       </Suspense>
     </Router>

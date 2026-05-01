@@ -38,7 +38,7 @@ const Navbar = () => {
             to="/"
             className="text-xl font-black tracking-tighter text-blue-600"
           >
-            MYAPP<span className="text-slate-800">.</span>
+            NexusCommerce<span className="text-slate-800">.</span>
           </Link>
 
           <div className="hidden md:flex items-center space-x-6 text-sm font-semibold h-full">
@@ -118,7 +118,9 @@ const Navbar = () => {
       {isMobileMenuOpen && (
         <div className="md:hidden fixed inset-0 bg-slate-900 z-[150] p-6 flex flex-col animate-in slide-in-from-right duration-300">
           <div className="flex justify-between items-center mb-10">
-            <span className="text-xl font-black text-blue-500">MYAPP.</span>
+            <span className="text-xl font-black text-blue-500">
+              NexusCommerce.
+            </span>
             <button
               onClick={() => setIsMobileMenuOpen(false)}
               className="text-slate-400 p-2 hover:text-white"

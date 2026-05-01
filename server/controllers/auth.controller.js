@@ -8,12 +8,8 @@ import { errorHandler } from "../utils/error.js";
 import { generateTokens } from "../utils/token.js";
 import { sendEmail } from "../utils/sendEmail.js";
 import { RefreshToken } from "../models/refreshToken.model.js";
-//  @Destination    Register User
-//  @Route          POST /api/users/signup
-//  @Access         Public
+
 export const signup = asyncHandler(async (req, res, next) => {
-  const { error } = User.validateUser(req.body);
-  if (error) return next(errorHandler(400, error.details[0].message));
   let user = await User.findOne({ email: req.body.email });
   if (user) return next(errorHandler(400, "User exist"));
 
@@ -23,52 +19,46 @@ export const signup = asyncHandler(async (req, res, next) => {
   await user.save();
 
   await generateTokens(res, user);
-  const { password: pass, ...userDetails } = user._doc;
+
   res.status(200).json({
     success: true,
     message: "Registration successful! You are now logged in.",
-    user: userDetails,
+    user: user,
   });
 });
 
-//  @Destination    Authenticate User
-//  @Route          POST /api/users/signin
-//  @Access         Public
 export const signin = asyncHandler(async (req, res, next) => {
   const { email, password } = req.body;
-  const validUser = await User.findOne({ email }).select("+password");
-  console.log("User Roles from DB:", validUser);
+  const user = await User.findOne({ email }).select("+password");
+  console.log("User Roles from DB:", user);
 
-  if (!validUser) {
+  if (!user) {
     return next(
       errorHandler(401, "Please provide a valid email address and password."),
     );
   }
 
-  if (validUser.isDeleted) {
+  if (user.isDeleted) {
     return next(errorHandler(403, "User has been deleted"));
   }
 
-  if (!validUser.active) {
+  if (!user.active) {
     return next(errorHandler(403, "User account is not active"));
   }
 
-  const isPasswordValid = await bcrypt.compare(password, validUser.password);
+  const isPasswordValid = await bcrypt.compare(password, user.password);
   if (!isPasswordValid) {
     return next(errorHandler(401, "Invalid email or password"));
   }
-  await generateTokens(res, validUser);
-  const { password: pass, ...userDetails } = validUser._doc;
+  await generateTokens(res, user);
+
   res.status(200).json({
     success: true,
     message: "Login successful",
-    user: userDetails,
+    user: user,
   });
 });
 
-//  @Destination    Logout User
-//  @Route          POST /api/users/signout
-//  @Access         Public
 export const signout = asyncHandler(async (req, res) => {
   const refreshToken = req.cookies.refresh_token;
   if (refreshToken) {
@@ -86,36 +76,36 @@ export const signout = asyncHandler(async (req, res) => {
 
   res.clearCookie("access_token", cookieOptions);
   res.clearCookie("refresh_token", cookieOptions);
-  res.status(200).json({ success: true, message: "Logged out" });
+  res.status(200).json({ success: true, message: "Logged out successfully." });
 });
 
-//  @Destination    refreshToken
-//  @Route          POST /api/auth/refreshtoken
-//  @Access         Public
 export const refreshToken = asyncHandler(async (req, res, next) => {
+  // check if refresh token exists in cookies
   const oldToken = req.cookies.refresh_token;
   if (!oldToken) return next(errorHandler(401, "No Refresh Token"));
 
+  // check if the token is in the database (valid and not revoked)
   const hashedOld = crypto.createHash("sha256").update(oldToken).digest("hex");
   const tokenInDB = await RefreshToken.findOne({ token: hashedOld });
 
-  if (!tokenInDB) return next(errorHandler(403, "Invalid Refresh Token"));
+  if (!tokenInDB) {
+    return next(
+      errorHandler(401, "Your login has expired, please sign in again."),
+    );
+  }
 
-  const user = await User.findById(tokenInDB.user);
-  if (!user || !user.active || user.isDeleted)
-    return next(errorHandler(403, "User unavailable"));
+  // find user associated with the token
+  const user = await User.findById(req.user._id);
+  if (!user || !user.active || user.isDeleted) {
+    return next(errorHandler(401, "User unavailable"));
+  }
 
-  // حذف توکن قبلی (Rotation)
-  await RefreshToken.deleteOne({ _id: tokenInDB._id });
+  // generate new tokens and save the new refresh token in the database (rotation)
+  await generateTokens(res, user, oldToken);
 
-  // تولید توکن جدید و ذخیره در DB
-  const { accessToken } = await generateTokens(res, user);
-
-  res.status(200).json({ success: true, accessToken });
+  res.status(200).json({ success: true });
 });
-//  @Destination    Forgot Password
-//  @Route          POST /api/auth/forgot-password
-//  @Access         Public
+
 export const forgotPassword = asyncHandler(async (req, res, next) => {
   if (!req.body.email) {
     return next(errorHandler(400, "Email address is required."));
@@ -179,9 +169,6 @@ export const forgotPassword = asyncHandler(async (req, res, next) => {
   }
 });
 
-//  @Destination     Validate Token
-//  @Route           POST /api/auth/validate-token/:token
-//  @Access          Public
 export const validateToken = asyncHandler(async (req, res, next) => {
   const { token } = req.params;
 
@@ -203,9 +190,6 @@ export const validateToken = asyncHandler(async (req, res, next) => {
   res.status(200).json({ success: true, message: "Token is valid" });
 });
 
-//  @Destination     Reset Password
-//  @Route           PUT /api/auth/reset-password
-//  @Access          Public
 export const resetPassword = asyncHandler(async (req, res, next) => {
   const resetPasswordToken = crypto
     .createHash("sha256")
@@ -223,24 +207,16 @@ export const resetPassword = asyncHandler(async (req, res, next) => {
   user.resetPasswordExpires = undefined;
 
   await user.save();
-  res.status(200).json({ success: true });
+  res.status(200).json({ success: true, message: "Password reset successful" });
 });
 
-//  @Destination    Get User Pofile
-//  @Route          GET /api/users/profile
-//  @Access         Public
 export const getUserProfile = asyncHandler(async (req, res, next) => {
   const user = await User.findById(req.user._id).select("-password");
   if (!user) return next(errorHandler(404, "User not found"));
   res.status(200).json(user);
 });
 
-//  @Destination    Update User Profile
-//  @Route          PUT /api/users/profile
-//  @Access         Private
 export const updateUserProfile = asyncHandler(async (req, res, next) => {
-  const { error } = User.validateUserProfile(req.body);
-  if (error) return next(errorHandler(400, error.details[0].message));
   const allowedFields = ["firstname", "lastname", "phone"];
   const updateFields = _.pick(req.body, allowedFields);
 
@@ -254,7 +230,7 @@ export const updateUserProfile = asyncHandler(async (req, res, next) => {
 
   res.status(200).json({
     success: true,
-    message: "Profile Update successful",
+    message: "Profile updated successfully",
     user: updatedUser,
   });
 });

@@ -7,7 +7,7 @@ const verifyToken = (req, res, next) => {
     return next(errorHandler(401, " Unauthorized: Access Token Missing"));
 
   jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, user) => {
-    if (err) return next(errorHandler(403, "Invalid or Expired Access Token"));
+    if (err) return next(errorHandler(401, "Invalid or Expired Access Token"));
 
     req.user = {
       ...user,
@@ -26,7 +26,7 @@ const verifyRefreshToken = (req, res, next) => {
 
   jwt.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET, (err, user) => {
     if (err) {
-      return next(errorHandler(403, "Invalid or Expired Refresh Token"));
+      return next(errorHandler(401, "Invalid or Expired Refresh Token"));
     }
     req.user = user;
     next();

@@ -9,7 +9,15 @@ const RefreshTokenSchema = new mongoose.Schema(
       index: { expires: 0 }, // توکن بعد از انقضا خودکار حذف می‌شود
     },
   },
-  { timestamps: true },
+  {
+    timestamps: true,
+    toJSON: {
+      transform: (doc, ret) => {
+        delete ret.__v;
+        return ret;
+      },
+    },
+  },
 );
 
 export const RefreshToken = mongoose.model("RefreshToken", RefreshTokenSchema);
